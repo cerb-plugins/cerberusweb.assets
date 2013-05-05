@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.devblocks.com/schema/plugin.xsd">
+	<id>cerberusweb.assets</id>
+	<name>Asset Tracking</name>
+	<description>This plugin introduces asset records.</description>
+	<author>Webgroup Media, LLC.</author>
+	<version>0.0.1</version>
+	<link>http://www.cerberusweb.com/</link>
+	<!--<image>plugin.png</image>-->
+
+	<!-- Requirements -->
+
+	<requires>
+		<app_version min="6.4" max="6.4.99" />
+		<!--<php_extension name="curl" />-->
+	</requires>
+
+	<!-- Plugin Dependencies -->
+	
+	<dependencies>
+		<require plugin_id="cerberusweb.core" version="6.4.0" />
+	</dependencies>
+
+	<!-- Patches -->
+	
+	<patches>
+		<patch version="6.4.0" revision="1" file="patches/6.4.0.php" />
+	</patches>
+	
+	<!-- Exported Classes -->
+	
+	<class_loader>
+		<file path="api/dao/asset.php">
+			<class name="Context_Asset" />
+			<class name="DAO_Asset" />
+			<class name="Model_Asset" />
+			<class name="SearchFields_Asset" />
+			<class name="View_Asset" />
+		</file>
+	</class_loader>
+
+	<!-- Extensions -->
+
+	<extensions>
+	
+		<!-- Contexts -->
+		
+		<extension point="devblocks.context">
+			<id>cerberusweb.contexts.asset</id>
+			<name>Asset</name>
+			<class>
+				<file>api/dao/asset.php</file>
+				<name>Context_Asset</name>
+			</class>
+			<params>
+				<param key="alias" value="asset" />
+				<param key="dao_class" value="DAO_Asset" />
+				<param key="view_class" value="View_Asset" />
+				<param key="options">
+					<value>
+						<data key="create" />
+						<data key="custom_fields" />
+						<data key="find" />
+						<data key="snippets" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+	
+		<!-- Profile Page Sections -->
+		
+		<extension point="cerberusweb.ui.page.section">
+			<id>assets.page.profiles.asset</id>
+			<name>Asset Section</name>
+			<class>
+				<file>api/profiles/asset.php</file>
+				<name>PageSection_ProfilesAsset</name>
+			</class>
+			<params>
+				<param key="page_id" value="core.page.profiles" />
+				<param key="uri" value="asset" />
+			</params>
+		</extension>
+	
+	</extensions>
+</plugin>
