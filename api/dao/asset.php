@@ -313,9 +313,9 @@ class SearchFields_Asset implements IDevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'asset', 'id', $translate->_('dao.asset.id')),
-			self::NAME => new DevblocksSearchField(self::NAME, 'asset', 'name', $translate->_('dao.asset.name')),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'asset', 'updated_at', $translate->_('dao.asset.updated_at')),
+			self::ID => new DevblocksSearchField(self::ID, 'asset', 'id', $translate->_('common.id'), Model_CustomField::TYPE_NUMBER),
+			self::NAME => new DevblocksSearchField(self::NAME, 'asset', 'name', $translate->_('common.name'), Model_CustomField::TYPE_SINGLE_LINE),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'asset', 'updated_at', $translate->_('common.updated'), Model_CustomField::TYPE_DATE),
 
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS'),
@@ -363,13 +363,12 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 			SearchFields_Asset::NAME,
 			SearchFields_Asset::UPDATED_AT,
 		);
-		// [TODO] Filter fields
+		
 		$this->addColumnsHidden(array(
 			SearchFields_Asset::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Asset::VIRTUAL_WATCHERS,
 		));
 		
-		// [TODO] Filter fields
 		$this->addParamsHidden(array(
 		));
 		
@@ -487,16 +486,12 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('id', $this->id);
 
-		// [TODO] Move the fields into the proper data type
 		switch($field) {
-			case SearchFields_Asset::ID:
 			case SearchFields_Asset::NAME:
-			case SearchFields_Asset::UPDATED_AT:
-			case 'placeholder_string':
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__string.tpl');
 				break;
 				
-			case 'placeholder_number':
+			case SearchFields_Asset::ID:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__number.tpl');
 				break;
 				
@@ -504,7 +499,7 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__bool.tpl');
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_Asset::UPDATED_AT:
 				$tpl->display('devblocks:cerberusweb.core::internal/views/criteria/__date.tpl');
 				break;
 				
@@ -563,20 +558,16 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
-		// [TODO] Move fields into the right data type
 		switch($field) {
-			case SearchFields_Asset::ID:
 			case SearchFields_Asset::NAME:
-			case SearchFields_Asset::UPDATED_AT:
-			case 'placeholder_string':
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case 'placeholder_number':
+			case SearchFields_Asset::ID:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case 'placeholder_date':
+			case SearchFields_Asset::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
