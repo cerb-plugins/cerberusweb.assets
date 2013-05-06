@@ -64,7 +64,7 @@
 	<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
 	
 	<div>
-		Are you sure you want to delete this <? echo strtolower($object_name); ?>?
+		Are you sure you want to delete this asset?
 	</div>
 	
 	<button type="button" class="delete" onclick="var $frm=$(this).closest('form');$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('button.submit').click();"><span class="cerb-sprite2 sprite-tick-circle"></span> Confirm</button>
@@ -74,7 +74,7 @@
 
 <div class="buttons">
 	<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmAssetPeek','{$view_id}', false, 'asset_save');"><span class="cerb-sprite2 sprite-tick-circle"></span> {$translate->_('common.save_changes')|capitalize}</button>
-	{if $model->id}<button type="button" onclick="if(confirm('Permanently delete this asset?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'frmAssetPeek','{$view_id}'); } "><span class="cerb-sprite2 sprite-minus-circle"></span> {$translate->_('common.delete')|capitalize}</button>{/if}
+	{if !empty($model->id)}<button type="button" onclick="$(this).parent().siblings('fieldset.delete').fadeIn();$(this).closest('div').fadeOut();"><span class="cerb-sprite2 sprite-cross-circle"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
 {if !empty($model->id)}
