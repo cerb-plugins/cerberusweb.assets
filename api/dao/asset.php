@@ -691,7 +691,7 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 	}
 };
 
-class Context_Asset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_Asset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
 	function getRandom() {
 		//return DAO_Asset::random();
 	}
@@ -887,7 +887,6 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 		$tpl->display('devblocks:cerberusweb.assets::asset/peek.tpl');
 	}
 	
-	/*
 	function importGetKeys() {
 		// [TODO] Translate
 	
@@ -915,6 +914,7 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 	
 	function importKeyValue($key, $value) {
 		switch($key) {
+			
 		}
 	
 		return $value;
@@ -941,5 +941,4 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 			DAO_CustomFieldValue::formatAndSetFieldValues($this->manifest->id, $meta['object_id'], $custom_fields, false, true, true); //$is_blank_unset (4th)
 		}
 	}
-	*/
 };
