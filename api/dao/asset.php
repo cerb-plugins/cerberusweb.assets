@@ -20,6 +20,10 @@ class DAO_Asset extends Cerb_ORMHelper {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
+		// Default fields
+		if(!isset($fields[DAO_Asset::UPDATED_AT]))
+			$fields[DAO_Asset::UPDATED_AT] = time();
+		
 		// Make a diff for the requested objects in batches
 		
 		$chunks = array_chunk($ids, 100, true);
@@ -50,7 +54,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				//DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_, $batch_ids);
+				DevblocksPlatform::markContextChanged('cerberusweb.contexts.asset', $batch_ids);
 			}
 		}
 	}
