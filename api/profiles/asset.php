@@ -82,7 +82,12 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 		$tpl->assign('properties', $properties);
 			
 		// Macros
-		$macros = DAO_TriggerEvent::getByOwner(CerberusContexts::CONTEXT_WORKER, $active_worker->id, 'event.macro.asset');
+		$macros = DAO_TriggerEvent::getByVirtualAttendantOwners(
+			array(
+				array(CerberusContexts::CONTEXT_WORKER, $active_worker->id),
+			),
+			'event.macro.asset'
+		);
 		$tpl->assign('macros', $macros);
 
 		// Tabs

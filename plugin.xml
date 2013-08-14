@@ -4,14 +4,14 @@
 	<name>Asset Tracking</name>
 	<description>This plugin introduces asset records.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>0.0.4</version>
+	<version>0.0.5</version>
 	<link>http://www.cerberusweb.com/</link>
 	<!--<image>plugin.png</image>-->
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="6.4.3" max="6.4.99" />
+		<app_version min="6.5" max="6.5.99" />
 		<!--<php_extension name="curl" />-->
 	</requires>
 
