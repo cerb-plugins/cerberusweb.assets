@@ -726,6 +726,13 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 		);
 	}
 	
+	// [TODO] Interface
+	function getDefaultProperties() {
+		return array(
+			'updated_at',
+		);
+	}
+	
 	function getContext($asset, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
 			$prefix = 'Asset:';
@@ -744,10 +751,20 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 		
 		// Token labels
 		$token_labels = array(
+			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
-			'updated_at|date' => $prefix.$translate->_('common.updated'),
+			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+		);
+		
+		// Token types
+		$token_types = array(
+			'_label' => 'context_url',
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'updated_at' => Model_CustomField::TYPE_DATE,
+			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -758,6 +775,7 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 		$token_values = array();
 		
 		$token_values['_context'] = 'cerberusweb.contexts.asset';
+		$token_values['_types'] = $token_types;
 		
 		if($asset) {
 			$token_values['_loaded'] = true;
