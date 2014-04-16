@@ -37,6 +37,12 @@
 			<class name="SearchFields_Asset" />
 			<class name="View_Asset" />
 		</file>
+		<file path="api/events/abstract_event_asset.php">
+			<class name="AbstractEvent_Asset" />
+		</file>
+		<file path="api/events/asset_macro.php">
+			<class name="Event_AssetMacro" />
+		</file>
 	</class_loader>
 
 	<!-- Extensions -->
@@ -64,6 +70,28 @@
 						<data key="snippets" />
 						<data key="va_variable" />
 						<data key="workspace" />
+					</value>
+				</param>
+			</params>
+		</extension>
+		
+		<!-- Events -->
+		
+		<extension point="devblocks.event">
+			<id>event.macro.asset</id>
+			<name>Custom asset behavior</name>
+			<class>
+				<file>api/events/asset_macro.php</file>
+				<name>Event_AssetMacro</name>
+			</class>
+			<params>
+				<param key="macro_context" value="cerberusweb.contexts.asset" />
+				<param key="contexts">
+					<value>
+						<data key="cerberusweb.contexts.app" />
+						<data key="cerberusweb.contexts.group" />
+						<data key="cerberusweb.contexts.role" />
+						<data key="cerberusweb.contexts.worker" />
 					</value>
 				</param>
 			</params>
