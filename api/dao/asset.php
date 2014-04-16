@@ -16,7 +16,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 		return $id;
 	}
 	
-	static function update($ids, $fields) {
+	static function update($ids, $fields, $check_deltas=true) {
 		if(!is_array($ids))
 			$ids = array($ids);
 		
@@ -31,16 +31,16 @@ class DAO_Asset extends Cerb_ORMHelper {
 			if(empty($batch_ids))
 				continue;
 			
-			// Get state before changes
-			$object_changes = parent::_getUpdateDeltas($batch_ids, $fields, get_class());
-
+			// Send events
+			if($check_deltas) {
+				CerberusContexts::checkpointChanges('cerberusweb.contexts.asset', $batch_ids);
+			}
+			
 			// Make changes
 			parent::_update($batch_ids, 'asset', $fields);
 			
 			// Send events
-			if(!empty($object_changes)) {
-				// Local events
-				//self::_processUpdateEvents($object_changes);
+			if($check_deltas) {
 				
 				// Trigger an event about the changes
 				$eventMgr = DevblocksPlatform::getEventService();
@@ -48,7 +48,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 					new Model_DevblocksEvent(
 						'dao.asset.update',
 						array(
-							'objects' => $object_changes,
+							'fields' => $fields,
 						)
 					)
 				);
@@ -147,6 +147,10 @@ class DAO_Asset extends Cerb_ORMHelper {
 		);
 		
 		return true;
+	}
+	
+	public static function random() {
+		return self::_getRandom('asset');
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
@@ -276,7 +280,6 @@ class DAO_Asset extends Cerb_ORMHelper {
 		}
 		
 		$results = array();
-		$total = -1;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$result = array();
@@ -287,13 +290,17 @@ class DAO_Asset extends Cerb_ORMHelper {
 			$results[$object_id] = $result;
 		}
 
-		// [JAS]: Count all
+		$total = count($results);
+		
 		if($withCounts) {
-			$count_sql =
-				($has_multiple_values ? "SELECT COUNT(DISTINCT asset.id) " : "SELECT COUNT(asset.id) ").
-				$join_sql.
-				$where_sql;
-			$total = $db->GetOne($count_sql);
+			// We can skip counting if we have a less-than-full single page
+			if(!(0 == $page && $total < $limit)) {
+				$count_sql =
+					($has_multiple_values ? "SELECT COUNT(DISTINCT asset.id) " : "SELECT COUNT(asset.id) ").
+					$join_sql.
+					$where_sql;
+				$total = $db->GetOne($count_sql);
+			}
 		}
 		
 		mysqli_free_result($rs);
@@ -697,7 +704,7 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 
 class Context_Asset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
 	function getRandom() {
-		//return DAO_Asset::random();
+		return DAO_Asset::random();
 	}
 	
 	function profileGetUrl($context_id) {
@@ -767,6 +774,8 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 			$asset = DAO_Asset::get($asset);
 		} elseif($asset instanceof Model_Asset) {
 			// It's what we want already.
+		} elseif(is_array($asset)) {
+			$asset = Cerb_ORMHelper::recastArrayToModel($asset, 'Model_Asset');
 		} else {
 			$asset = null;
 		}
@@ -809,6 +818,9 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['id'] = $asset->id;
 			$token_values['name'] = $asset->name;
 			$token_values['updated_at'] = $asset->updated_at;
+			
+			// Custom fields
+			$token_values = $this->_importModelCustomFieldsAsValues($asset, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::getUrlService();
