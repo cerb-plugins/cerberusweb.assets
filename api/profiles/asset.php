@@ -64,17 +64,17 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 	
 		// Custom Fields
 
-		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.asset', $asset->id)) or array();
+		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ASSET, $asset->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
-		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields('cerberusweb.contexts.asset', $values);
+		$properties_cfields = Page_Profiles::getProfilePropertiesCustomFields(CerberusContexts::CONTEXT_ASSET, $values);
 		
 		if(!empty($properties_cfields))
 			$properties = array_merge($properties, $properties_cfields);
 		
 		// Custom Fieldsets
 
-		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets('cerberusweb.contexts.asset', $asset->id, $values);
+		$properties_custom_fieldsets = Page_Profiles::getProfilePropertiesCustomFieldsets(CerberusContexts::CONTEXT_ASSET, $asset->id, $values);
 		$tpl->assign('properties_custom_fieldsets', $properties_custom_fieldsets);
 		
 		// Properties
@@ -90,7 +90,7 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 		$tpl->assign('macros', $macros);
 
 		// Tabs
-		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, 'cerberusweb.contexts.asset');
+		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ASSET);
 		$tpl->assign('tab_manifests', $tab_manifests);
 		
 		// Template
@@ -102,6 +102,7 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 		
 		@$id = DevblocksPlatform::importGPC($_REQUEST['id'], 'integer', 0);
 		@$name = DevblocksPlatform::importGPC($_REQUEST['name'], 'string', '');
+		@$comment = DevblocksPlatform::importGPC($_REQUEST['comment'], 'string', '');
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -120,17 +121,17 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 				// Watchers
 				@$add_watcher_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::importGPC($_REQUEST['add_watcher_ids'],'array',array()),'integer',array('unique','nonzero'));
 				if(!empty($add_watcher_ids))
-					CerberusContexts::addWatchers('cerberusweb.contexts.asset', $id, $add_watcher_ids);
+					CerberusContexts::addWatchers(CerberusContexts::CONTEXT_ASSET, $id, $add_watcher_ids);
 				
 				// Context Link (if given)
 				@$link_context = DevblocksPlatform::importGPC($_REQUEST['link_context'],'string','');
 				@$link_context_id = DevblocksPlatform::importGPC($_REQUEST['link_context_id'],'integer','');
 				if(!empty($id) && !empty($link_context) && !empty($link_context_id)) {
-					DAO_ContextLink::setLink('cerberusweb.contexts.asset', $id, $link_context, $link_context_id);
+					DAO_ContextLink::setLink(CerberusContexts::CONTEXT_ASSET, $id, $link_context, $link_context_id);
 				}
 				
 				if(!empty($view_id) && !empty($id))
-					C4_AbstractView::setMarqueeContextCreated($view_id, 'cerberusweb.contexts.asset', $id);
+					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ASSET, $id);
 				
 			} else { // Edit
 				$fields = array(
@@ -140,14 +141,14 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 				DAO_Asset::update($id, $fields);
 				
 			}
-
+			
 			// If we're adding a comment
 			if(!empty($comment)) {
-				@$also_notify_worker_ids = DevblocksPlatform::importGPC($_REQUEST['notify_worker_ids'],'array',array());
+				$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
 				
 				$fields = array(
 					DAO_Comment::CREATED => time(),
-					DAO_Comment::CONTEXT => 'cerberusweb.contexts.asset',
+					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_ASSET,
 					DAO_Comment::CONTEXT_ID => $id,
 					DAO_Comment::COMMENT => $comment,
 					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
@@ -158,7 +159,7 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 			
 			// Custom fields
 			@$field_ids = DevblocksPlatform::importGPC($_REQUEST['field_ids'], 'array', array());
-			DAO_CustomFieldValue::handleFormPost('cerberusweb.contexts.asset', $id, $field_ids);
+			DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_ASSET, $id, $field_ids);
 		}
 	}
 	

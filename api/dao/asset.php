@@ -33,7 +33,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 			
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges('cerberusweb.contexts.asset', $batch_ids);
+				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_ASSET, $batch_ids);
 			}
 			
 			// Make changes
@@ -54,7 +54,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				DevblocksPlatform::markContextChanged('cerberusweb.contexts.asset', $batch_ids);
+				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_ASSET, $batch_ids);
 			}
 		}
 	}
@@ -140,7 +140,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 			new Model_DevblocksEvent(
 				'context.delete',
 				array(
-					'context' => 'cerberusweb.contexts.asset',
+					'context' => CerberusContexts::CONTEXT_ASSET,
 					'context_ids' => $ids
 				)
 			)
@@ -172,7 +172,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 			);
 			
 		$join_sql = "FROM asset ".
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = 'cerberusweb.contexts.asset' AND context_link.to_context_id = asset.id) " : " ").
+			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = CerberusContexts::CONTEXT_ASSET AND context_link.to_context_id = asset.id) " : " ").
 			'';
 		
 		// Custom field joins
@@ -218,7 +218,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 		if(!is_a($param, 'DevblocksSearchCriteria'))
 			return;
 			
-		$from_context = 'cerberusweb.contexts.asset';
+		$from_context = CerberusContexts::CONTEXT_ASSET;
 		$from_index = 'asset.id';
 		
 		$param_key = $param->field;
@@ -339,7 +339,7 @@ class SearchFields_Asset implements IDevblocksSearchFields {
 		
 		// Custom Fields
 		$custom_columns = DevblocksSearchField::getCustomSearchFieldsByContexts(array(
-			'cerberusweb.contexts.asset',
+			CerberusContexts::CONTEXT_ASSET,
 		));
 		
 		if(!empty($custom_columns))
@@ -463,11 +463,11 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 //				break;
 				
 			case SearchFields_Asset::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Asset', 'cerberusweb.contexts.asset', $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Asset', CerberusContexts::CONTEXT_ASSET, $column);
 				break;
 				
 			case SearchFields_Asset::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Asset', 'cerberusweb.contexts.asset', $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Asset', CerberusContexts::CONTEXT_ASSET, $column);
 				break;
 				
 			case SearchFields_Asset::VIRTUAL_WATCHERS:
@@ -494,7 +494,7 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.asset');
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ASSET);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$tpl->assign('view_template', 'devblocks:cerberusweb.assets::asset/view.tpl');
@@ -529,7 +529,7 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 				break;
 				
 			case SearchFields_Asset::VIRTUAL_HAS_FIELDSET:
-				$this->_renderCriteriaHasFieldset($tpl, 'cerberusweb.contexts.asset');
+				$this->_renderCriteriaHasFieldset($tpl, CerberusContexts::CONTEXT_ASSET);
 				break;
 				
 			case SearchFields_Asset::VIRTUAL_WATCHERS:
@@ -689,7 +689,7 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 			}
 
 			// Custom Fields
-			self::_doBulkSetCustomFields('cerberusweb.contexts.asset', $custom_fields, $batch_ids);
+			self::_doBulkSetCustomFields(CerberusContexts::CONTEXT_ASSET, $custom_fields, $batch_ids);
 			
 			unset($batch_ids);
 		}
@@ -763,7 +763,7 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 			$prefix = 'Asset:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getByContext('cerberusweb.contexts.asset');
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ASSET);
 
 		// Polymorph
 		if(is_numeric($asset)) {
@@ -805,7 +805,7 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 		// Token values
 		$token_values = array();
 		
-		$token_values['_context'] = 'cerberusweb.contexts.asset';
+		$token_values['_context'] = CerberusContexts::CONTEXT_ASSET;
 		$token_values['_types'] = $token_types;
 		
 		if($asset) {
@@ -830,7 +830,7 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 		if(!isset($dictionary['id']))
 			return;
 		
-		$context = 'cerberusweb.contexts.asset';
+		$context = CerberusContexts::CONTEXT_ASSET;
 		$context_id = $dictionary['id'];
 		
 		@$is_loaded = $dictionary['_loaded'];
@@ -925,20 +925,19 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 			$tpl->assign('model', $asset);
 		}
 		
-		$custom_fields = DAO_CustomField::getByContext('cerberusweb.contexts.asset', false);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ASSET, false);
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		if(!empty($context_id)) {
-			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds('cerberusweb.contexts.asset', $context_id);
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ASSET, $context_id);
 			if(isset($custom_field_values[$context_id]))
 				$tpl->assign('custom_field_values', $custom_field_values[$context_id]);
 		}
 
 		// Comments
-		$comments = DAO_Comment::getByContext('cerberusweb.contexts.asset', $context_id);
-		$last_comment = array_shift($comments);
-		unset($comments);
-		$tpl->assign('last_comment', $last_comment);
+		$comments = DAO_Comment::getByContext(CerberusContexts::CONTEXT_ASSET, $context_id);
+		$comments = array_reverse($comments, true);
+		$tpl->assign('comments', $comments);
 		
 		$tpl->display('devblocks:cerberusweb.assets::asset/peek.tpl');
 	}
