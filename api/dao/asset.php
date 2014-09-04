@@ -172,7 +172,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 			);
 			
 		$join_sql = "FROM asset ".
-			(isset($tables['context_link']) ? "INNER JOIN context_link ON (context_link.to_context = CerberusContexts::CONTEXT_ASSET AND context_link.to_context_id = asset.id) " : " ").
+			(isset($tables['context_link']) ? sprintf("INNER JOIN context_link ON (context_link.to_context = %s AND context_link.to_context_id = asset.id) ", Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_ASSET)) : " ").
 			'';
 		
 		// Custom field joins
@@ -372,7 +372,6 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals {
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_Asset::ID,
 			SearchFields_Asset::NAME,
 			SearchFields_Asset::UPDATED_AT,
 		);
