@@ -15,7 +15,7 @@ if(!isset($tables['asset'])) {
 			PRIMARY KEY (id)
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
-	$db->Execute($sql);
+	$db->ExecuteMaster($sql);
 
 	$tables['asset'] = 'asset';
 }
