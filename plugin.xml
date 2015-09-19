@@ -4,14 +4,14 @@
 	<name>Asset Tracking</name>
 	<description>This plugin introduces asset records.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>0.0.29</version>
+	<version>0.0.30</version>
 	<link>http://www.cerbweb.com/</link>
 	<!--<image>plugin.png</image>-->
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="7.0.3" max="7.0.99" />
+		<app_version min="7.1" max="7.1.99" />
 		<!--<php_extension name="curl" />-->
 	</requires>
 
@@ -59,6 +59,12 @@
 				<name>Context_Asset</name>
 			</class>
 			<params>
+				<param key="names">
+					<value>
+						<data key="asset" value="singular" />
+						<data key="assets" value="plural" />
+					</value>
+				</param>
 				<param key="alias" value="asset" />
 				<param key="dao_class" value="DAO_Asset" />
 				<param key="view_class" value="View_Asset" />
