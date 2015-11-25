@@ -786,6 +786,7 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 			'id' => $asset->id,
 			'name' => $asset->name,
 			'permalink' => $url,
+			'updated' => $asset->updated_at,
 		);
 	}
 	
@@ -975,7 +976,7 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 		return $view;
 	}
 	
-	function renderPeekPopup($context_id=0, $view_id='') {
+	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::getTemplateService();
 		$tpl->assign('view_id', $view_id);
 		
