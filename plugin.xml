@@ -103,6 +103,25 @@
 			</params>
 		</extension>
 	
+		<!-- VA Actions -->
+		
+		<extension point="devblocks.event.action">
+			<id>va.action.create_asset</id>
+			<name>Create Asset</name>
+			<class>
+				<file>api/App.php</file>
+				<name>VaAction_CreateAsset</name>
+			</class>
+			<params>
+				<param key="label" value="Create asset" />
+				<param key="events">
+					<value>
+						<data key="*" />
+					</value>
+				</param>
+			</params>
+		</extension>
+	
 		<!-- Profile Page Sections -->
 		
 		<extension point="cerberusweb.ui.page.section">
