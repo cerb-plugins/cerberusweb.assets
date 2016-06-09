@@ -480,35 +480,28 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function getSubtotalCounts($column) {
 		$counts = array();
 		$fields = $this->getFields();
+		$context = CerberusContexts::CONTEXT_ASSET;
 
 		if(!isset($fields[$column]))
 			return array();
 		
 		switch($column) {
-//			case SearchFields_Asset::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn('DAO_Asset', $column);
-//				break;
-
-//			case SearchFields_Asset::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn('DAO_Asset', $column);
-//				break;
-				
 			case SearchFields_Asset::VIRTUAL_CONTEXT_LINK:
-				$counts = $this->_getSubtotalCountForContextLinkColumn('DAO_Asset', CerberusContexts::CONTEXT_ASSET, $column);
+				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 				
 			case SearchFields_Asset::VIRTUAL_HAS_FIELDSET:
-				$counts = $this->_getSubtotalCountForHasFieldsetColumn('DAO_Asset', CerberusContexts::CONTEXT_ASSET, $column);
+				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
 				break;
 				
 			case SearchFields_Asset::VIRTUAL_WATCHERS:
-				$counts = $this->_getSubtotalCountForWatcherColumn('DAO_Asset', $column);
+				$counts = $this->_getSubtotalCountForWatcherColumn($context, $column);
 				break;
 			
 			default:
 				// Custom fields
 				if('cf_' == substr($column,0,3)) {
-					$counts = $this->_getSubtotalCountForCustomColumn('DAO_Asset', $column, 'asset.id');
+					$counts = $this->_getSubtotalCountForCustomColumn($context, $column);
 				}
 				
 				break;
