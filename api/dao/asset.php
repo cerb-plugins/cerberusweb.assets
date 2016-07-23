@@ -833,7 +833,6 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 		return $labels;
 	}
 	
-	// [TODO] Interface
 	function getDefaultProperties() {
 		return array(
 			'updated_at',
