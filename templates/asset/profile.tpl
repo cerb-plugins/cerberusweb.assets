@@ -98,7 +98,7 @@
 		var tabs = $("#profileAssetTabs").tabs(tabOptions);
 		
 		$('#btnDisplayAssetEdit').bind('click', function() {
-			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'550');
+			$popup = genericAjaxPopup('peek','c=internal&a=showPeekPopup&context={$page_context}&context_id={$page_context_id}',null,false,'50%');
 			$popup.one('asset_save', function(event) {
 				event.stopPropagation();
 				document.location.reload();
