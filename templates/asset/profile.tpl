@@ -1,5 +1,6 @@
 {$page_context = 'cerberusweb.contexts.asset'}
 {$page_context_id = $asset->id}
+{$is_writeable = Context_Asset::isWriteableByActor($asset, $active_worker)}
 
 <div style="float:left">
 	<h1>{$asset->name}</h1>
@@ -24,11 +25,15 @@
 		</span>
 		
 		<!-- Macros -->
+		{if $is_writeable}
 		{devblocks_url assign=return_url full=true}c=profiles&type=asset&id={$page_context_id}-{$asset->name|devblocks_permalink}{/devblocks_url}
-		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macros=$macros return_url=$return_url}
+		{include file="devblocks:cerberusweb.core::internal/macros/display/button.tpl" context=$page_context context_id=$page_context_id macro_event="event.macro.asset" return_url=$return_url}
+		{/if}
 		
 		<!-- Edit -->
+		{if $is_writeable}
 		<button type="button" id="btnDisplayAssetEdit" title="{'common.edit'|devblocks_translate|capitalize} (E)" class="cerb-peek-trigger" data-context="{$page_context}" data-context-id="{$page_context_id}" data-edit="true"><span class="glyphicons glyphicons-cogwheel"></span></button>
+		{/if}
 	</form>
 	
 	{if $pref_keyboard_shortcuts}
@@ -113,8 +118,6 @@ $(function() {
 		.on('cerb-peek-closed', function(e) {
 		})
 		;
-
-	{include file="devblocks:cerberusweb.core::internal/macros/display/menu_script.tpl" selector_button=null selector_menu=null}
 });
 </script>
 
