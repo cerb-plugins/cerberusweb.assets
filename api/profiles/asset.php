@@ -22,6 +22,8 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
+		$context = CerberusContexts::CONTEXT_ASSET;
+		
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
@@ -34,6 +36,13 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 			return;
 		}
 		$tpl->assign('asset', $asset);
+		
+		// Dictionary
+		$labels = array();
+		$values = array();
+		CerberusContexts::getContext($context, $asset, $labels, $values, '', true, false);
+		$dict = DevblocksDictionaryDelegate::instance($values);
+		$tpl->assign('dict', $dict);
 	
 		// Tab persistence
 		
@@ -54,10 +63,10 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $asset->updated_at,
 		);
-			
-	
+		
+		
 		// Custom Fields
-
+		
 		@$values = array_shift(DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_ASSET, $asset->id)) or array();
 		$tpl->assign('custom_field_values', $values);
 		
@@ -93,6 +102,11 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 		// Tabs
 		$tab_manifests = Extension_ContextProfileTab::getExtensions(false, CerberusContexts::CONTEXT_ASSET);
 		$tpl->assign('tab_manifests', $tab_manifests);
+		
+		// Interactions
+		$interactions = Event_GetInteractionsForWorker::getInteractionsByPointAndWorker('record:' . $context, $dict, $active_worker);
+		$interactions_menu = Event_GetInteractionsForWorker::getInteractionMenu($interactions);
+		$tpl->assign('interactions_menu', $interactions_menu);
 		
 		// Template
 		$tpl->display('devblocks:cerberusweb.assets::asset/profile.tpl');
@@ -214,14 +228,6 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 		// Custom Fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_ASSET, false);
 		$tpl->assign('custom_fields', $custom_fields);
-		
-		// Macros
-		
-		$macros = DAO_TriggerEvent::getUsableMacrosByWorker(
-			$active_worker,
-			'event.macro.asset'
-		);
-		$tpl->assign('macros', $macros);
 		
 		$tpl->display('devblocks:cerberusweb.assets::asset/bulk.tpl');
 	}

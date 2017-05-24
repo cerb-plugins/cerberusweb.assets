@@ -11,14 +11,14 @@
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="7.4" max="7.4.99" />
+		<app_version min="8.0" max="8.0.99" />
 		<!--<php_extension name="curl" />-->
 	</requires>
 
 	<!-- Plugin Dependencies -->
 	
 	<dependencies>
-		<require plugin_id="cerberusweb.core" version="7.4.0" />
+		<require plugin_id="cerberusweb.core" version="8.0.0" />
 	</dependencies>
 
 	<!-- Patches -->
@@ -87,7 +87,7 @@
 		
 		<extension point="devblocks.event">
 			<id>event.macro.asset</id>
-			<name>Custom asset behavior</name>
+			<name>Custom behavior on asset</name>
 			<class>
 				<file>api/events/asset_macro.php</file>
 				<name>Event_AssetMacro</name>
@@ -100,6 +100,11 @@
 						<data key="cerberusweb.contexts.group" />
 						<data key="cerberusweb.contexts.role" />
 						<data key="cerberusweb.contexts.worker" />
+					</value>
+				</param>
+				<param key="options">
+					<value>
+						<data key="visibility" />
 					</value>
 				</param>
 			</params>
