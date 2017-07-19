@@ -89,7 +89,7 @@ abstract class AbstractEvent_Asset extends Extension_DevblocksEvent {
 				'context' => CerberusContexts::CONTEXT_BEHAVIOR,
 			),
 			'behavior_bot_id' => array(
-				'label' => 'Behavior',
+				'label' => 'Bot',
 				'context' => CerberusContexts::CONTEXT_BOT,
 			),
 		);
