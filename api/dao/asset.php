@@ -3,9 +3,37 @@ class DAO_Asset extends Cerb_ORMHelper {
 	const ID = 'id';
 	const NAME = 'name';
 	const UPDATED_AT = 'updated_at';
+	
+	private function __construct() {}
 
+	static function getFields() {
+		$validation = DevblocksPlatform::services()->validation();
+		
+		// int(10) unsigned
+		$validation
+			->addField(self::ID)
+			->id()
+			->setEditable(false)
+			;
+		// varchar(255)
+		$validation
+			->addField(self::NAME)
+			->string()
+			->setMaxLength(255)
+			->setNotEmpty(true)
+			->setRequired(true)
+			;
+		// int(10) unsigned
+		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+			;
+
+		return $validation->getFields();
+	}
+	
 	static function create($fields) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		$sql = "INSERT INTO asset () VALUES ()";
 		$db->ExecuteMaster($sql);
@@ -43,7 +71,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 			if($check_deltas) {
 				
 				// Trigger an event about the changes
-				$eventMgr = DevblocksPlatform::getEventService();
+				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
 						'dao.asset.update',
@@ -68,7 +96,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 	 * @return boolean
 	 */
 	static function bulkUpdate(Model_ContextBulkUpdate $update) {
-		$tpl_builder = DevblocksPlatform::getTemplateBuilder();
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 
 		$do = $update->actions;
 		$ids = $update->context_ids;
@@ -121,7 +149,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 	 * @return Model_Asset[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
@@ -181,7 +209,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 	
 	static function delete($ids) {
 		if(!is_array($ids)) $ids = array($ids);
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		if(empty($ids))
 			return;
@@ -191,7 +219,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 		$db->ExecuteMaster(sprintf("DELETE FROM asset WHERE id IN (%s)", $ids_list));
 		
 		// Fire event
-		$eventMgr = DevblocksPlatform::getEventService();
+		$eventMgr = DevblocksPlatform::services()->event();
 		$eventMgr->trigger(
 			new Model_DevblocksEvent(
 				'context.delete',
@@ -283,7 +311,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 	 * @return array
 	 */
 	static function search($columns, $params, $limit=10, $page=0, $sortBy=null, $sortAsc=null, $withCounts=true) {
-		$db = DevblocksPlatform::getDatabaseService();
+		$db = DevblocksPlatform::services()->database();
 		
 		// Build search queries
 		$query_parts = self::getSearchQueryComponents($columns,$params,$sortBy,$sortAsc);
@@ -617,7 +645,7 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	function render() {
 		$this->_sanitize();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
@@ -630,7 +658,7 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 
 	function renderCriteria($field) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('id', $this->id);
 
 		switch($field) {
@@ -768,6 +796,17 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 	}
 	
 	static function isWriteableByActor($models, $actor) {
+		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			return CerberusContexts::denyEverything($models);
+		
+		if($actor->_context == CerberusContexts::CONTEXT_WORKER) {
+			if(false == ($active_worker = DAO_Worker::get($actor->id)))
+				return CerberusContexts::denyEverything($models);
+			
+			if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_ASSET)))
+				return CerberusContexts::denyEverything($models);
+		}
+		
 		// Everyone can modify
 		return CerberusContexts::allowEverything($models);
 	}
@@ -780,14 +819,14 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 		if(empty($context_id))
 			return '';
 	
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		$url = $url_writer->writeNoProxy('c=profiles&type=asset&id='.$context_id, true);
 		return $url;
 	}
 	
 	function getMeta($context_id) {
 		$asset = DAO_Asset::get($context_id);
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		$url = $this->profileGetUrl($context_id);
 		$friendly = DevblocksPlatform::strToPermalink($asset->name);
@@ -892,11 +931,19 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values = $this->_importModelCustomFieldsAsValues($asset, $token_values);
 			
 			// URL
-			$url_writer = DevblocksPlatform::getUrlService();
+			$url_writer = DevblocksPlatform::services()->url();
 			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=asset&id=%d-%s",$asset->id, DevblocksPlatform::strToPermalink($asset->name)), true);
 		}
 		
 		return true;
+	}
+	
+	function getKeyToDaoFieldMap() {
+		return [
+			'id' => DAO_Asset::ID,
+			'name' => DAO_Asset::NAME,
+			'updated_at' => DAO_Asset::UPDATED_AT,
+		];
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
@@ -993,7 +1040,7 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 	}
 	
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 		
 		$active_worker = CerberusApplication::getActiveWorker();

@@ -17,7 +17,7 @@
 
 class PageSection_ProfilesAsset extends Extension_PageSection {
 	function render() {
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$visit = CerberusApplication::getVisit();
 		$translate = DevblocksPlatform::getTranslationService();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -121,11 +121,15 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 		@$do_delete = DevblocksPlatform::importGPC($_REQUEST['do_delete'], 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
+		$validation = DevblocksPlatform::services()->validation();
 		
 		header('Content-Type: application/json; charset=utf-8');
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
+				if(!$active_worker->hasPriv(sprintf('contexts.%s.delete', CerberusContexts::CONTEXT_ASSET)))
+					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
+				
 				DAO_Asset::delete($id);
 				
 				echo json_encode(array(
@@ -136,14 +140,18 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 				return;
 				
 			} else {
-				if(empty($name))
-					throw new Exception_DevblocksAjaxValidationError("The 'name' field is required.", 'name');
-				
 				if(empty($id)) { // New
-					$fields = array(
+					if(!$active_worker->hasPriv(sprintf('contexts.%s.create', CerberusContexts::CONTEXT_ASSET)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
+					
+					$fields = [
 						DAO_Asset::UPDATED_AT => time(),
 						DAO_Asset::NAME => $name,
-					);
+					];
+					
+					if(!DAO_Asset::validate($fields, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Asset::create($fields);
 					
 					if(!empty($view_id) && !empty($id))
@@ -154,12 +162,18 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 					if($id && false == ($model = DAO_Asset::get($id)))
 						throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
 					
+					if(!CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_ASSET, $model, $active_worker))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
 					$fields = array(
 						DAO_Asset::UPDATED_AT => time(),
 						DAO_Asset::NAME => $name,
 					);
-					DAO_Asset::update($id, $fields);
 					
+					if(!DAO_Asset::validate($fields, $error, $id))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
+					DAO_Asset::update($id, $fields);
 				}
 				
 				// If we're adding a comment
@@ -214,7 +228,7 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$tpl = DevblocksPlatform::getTemplateService();
+		$tpl = DevblocksPlatform::services()->template();
 		$tpl->assign('view_id', $view_id);
 
 		if(!empty($ids)) {
@@ -310,7 +324,7 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 		@$view_id = DevblocksPlatform::importGPC($_REQUEST['view_id'],'string');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-		$url_writer = DevblocksPlatform::getUrlService();
+		$url_writer = DevblocksPlatform::services()->url();
 		
 		// Generate hash
 		$hash = md5($view_id.$active_worker->id.time());
