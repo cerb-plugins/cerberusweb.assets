@@ -4,7 +4,7 @@
 	<name>Asset Tracking</name>
 	<description>This plugin introduces asset records.</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>0.4.0</version>
+	<version>0.4.1</version>
 	<link>https://cerb.ai</link>
 	<image>plugin.png</image>
 
@@ -89,7 +89,6 @@
 						<data key="export" />
 						<data key="import" />
 						<data key="update" />
-						<data key="update.bulk" />
 					</value>
 				</param>
 			</params>

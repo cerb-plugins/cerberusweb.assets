@@ -158,6 +158,9 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ASSET, $id);
 					
 				} else { // Edit
+					if(!$active_worker->hasPriv(sprintf('contexts.%s.update', CerberusContexts::CONTEXT_ASSET)))
+						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
+					
 					// Load the existing model so we can detect changes
 					if($id && false == ($model = DAO_Asset::get($id)))
 						throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");

@@ -1,5 +1,4 @@
 <?php
-if(class_exists('Extension_DevblocksEventAction')):
 class VaAction_CreateAsset extends Extension_DevblocksEventAction {
 	function render(Extension_DevblocksEvent $event, Model_TriggerEvent $trigger, $params=array(), $seq=null) {
 		$tpl = DevblocksPlatform::services()->template();
@@ -112,4 +111,3 @@ class VaAction_CreateAsset extends Extension_DevblocksEventAction {
 	}
 	
 };
-endif;
