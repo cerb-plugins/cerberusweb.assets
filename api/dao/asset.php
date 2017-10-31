@@ -28,7 +28,12 @@ class DAO_Asset extends Cerb_ORMHelper {
 			->addField(self::UPDATED_AT)
 			->timestamp()
 			;
-
+		$validation
+			->addField('_links')
+			->string()
+			->setMaxLength(65535)
+			;
+			
 		return $validation->getFields();
 	}
 	
@@ -51,6 +56,9 @@ class DAO_Asset extends Cerb_ORMHelper {
 		// Default fields
 		if(!isset($fields[DAO_Asset::UPDATED_AT]))
 			$fields[DAO_Asset::UPDATED_AT] = time();
+		
+		$context = CerberusContexts::CONTEXT_ASSET;
+		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
 		
@@ -529,7 +537,7 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 					
 				// Valid custom fields
 				default:
-					if('cf_' == substr($field_key,0,3))
+					if(DevblocksPlatform::strStartsWith($field_key, 'cf_'))
 						$pass = $this->_canSubtotalCustomField($field_key);
 					break;
 			}
@@ -789,23 +797,16 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 };
 
 class Context_Asset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+	static function isCreateableByActor(array $fields, $actor) {
+		return true;
+	}
+	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
 		return CerberusContexts::allowEverything($models);
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
-			return CerberusContexts::denyEverything($models);
-		
-		if($actor->_context == CerberusContexts::CONTEXT_WORKER) {
-			if(false == ($active_worker = DAO_Worker::get($actor->id)))
-				return CerberusContexts::denyEverything($models);
-			
-			if(!$active_worker->hasPriv(sprintf("contexts.%s.update", CerberusContexts::CONTEXT_ASSET)))
-				return CerberusContexts::denyEverything($models);
-		}
-		
 		// Everyone can modify
 		return CerberusContexts::allowEverything($models);
 	}
@@ -940,9 +941,20 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 	function getKeyToDaoFieldMap() {
 		return [
 			'id' => DAO_Asset::ID,
+			'links' => '_links',
 			'name' => DAO_Asset::NAME,
 			'updated_at' => DAO_Asset::UPDATED_AT,
 		];
+	}
+	
+	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, &$error) {
+		switch(DevblocksPlatform::strLower($key)) {
+			case 'links':
+				$this->_getDaoFieldsLinks($value, $out_fields, $error);
+				break;
+		}
+		
+		return true;
 	}
 
 	function lazyLoadContextValues($token, $dictionary) {
