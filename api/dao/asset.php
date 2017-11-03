@@ -99,6 +99,15 @@ class DAO_Asset extends Cerb_ORMHelper {
 		parent::_updateWhere('asset', $fields, $where);
 	}
 	
+	static public function onBeforeUpdateByActor($actor, $fields, $id=null, &$error=null) {
+		$context = CerberusContexts::CONTEXT_ASSET;
+		
+		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
+			return false;
+		
+		return true;
+	}
+	
 	/**
 	 * @param Model_ContextBulkUpdate $update
 	 * @return boolean
@@ -797,10 +806,6 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 };
 
 class Context_Asset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
-	static function isCreateableByActor(array $fields, $actor) {
-		return true;
-	}
-	
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
 		return CerberusContexts::allowEverything($models);

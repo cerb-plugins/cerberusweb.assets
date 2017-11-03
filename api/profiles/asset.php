@@ -141,9 +141,6 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 				
 			} else {
 				if(empty($id)) { // New
-					if(!$active_worker->hasPriv(sprintf('contexts.%s.create', CerberusContexts::CONTEXT_ASSET)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.create'));
-					
 					$fields = [
 						DAO_Asset::UPDATED_AT => time(),
 						DAO_Asset::NAME => $name,
@@ -152,15 +149,16 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 					if(!DAO_Asset::validate($fields, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Asset::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					$id = DAO_Asset::create($fields);
+					DAO_Asset::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_ASSET, $id);
 					
 				} else { // Edit
-					if(!$active_worker->hasPriv(sprintf('contexts.%s.update', CerberusContexts::CONTEXT_ASSET)))
-						throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-					
 					// Load the existing model so we can detect changes
 					if($id && false == ($model = DAO_Asset::get($id)))
 						throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
@@ -176,7 +174,11 @@ class PageSection_ProfilesAsset extends Extension_PageSection {
 					if(!DAO_Asset::validate($fields, $error, $id))
 						throw new Exception_DevblocksAjaxValidationError($error);
 					
+					if(!DAO_Asset::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+						throw new Exception_DevblocksAjaxValidationError($error);
+					
 					DAO_Asset::update($id, $fields);
+					DAO_Asset::onUpdateByActor($active_worker, $fields, $id);
 				}
 				
 				// If we're adding a comment
