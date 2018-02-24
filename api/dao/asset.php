@@ -124,8 +124,8 @@ class DAO_Asset extends Cerb_ORMHelper {
 		
 		$update->markInProgress();
 		
-		$change_fields = array();
-		$custom_fields = array();
+		$change_fields = [];
+		$custom_fields = [];
 		$deleted = false;
 
 		if(is_array($do))
@@ -133,7 +133,7 @@ class DAO_Asset extends Cerb_ORMHelper {
 			switch($k) {
 				default:
 					// Custom fields
-					if(substr($k,0,3)=="cf_") {
+					if(DevblocksPlatform::strStartsWith($k, 'cf_')) {
 						$custom_fields[substr($k,3)] = $v;
 					}
 			}
@@ -222,6 +222,22 @@ class DAO_Asset extends Cerb_ORMHelper {
 		mysqli_free_result($rs);
 		
 		return $objects;
+	}
+	
+	static function mergeIds($from_ids, $to_id) {
+		$db = DevblocksPlatform::services()->database();
+
+		$context = CerberusContexts::CONTEXT_ASSET;
+		
+		if(empty($from_ids) || empty($to_id))
+			return false;
+			
+		if(!is_numeric($to_id) || !is_array($from_ids))
+			return false;
+		
+		self::_mergeIds($context, $from_ids, $to_id);
+		
+		return true;
 	}
 	
 	static function delete($ids) {
@@ -805,7 +821,7 @@ class View_Asset extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 	}
 };
 
-class Context_Asset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport {
+class Context_Asset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextImport, IDevblocksContextMerge {
 	static function isReadableByActor($models, $actor) {
 		// Everyone can view
 		return CerberusContexts::allowEverything($models);
@@ -1026,7 +1042,6 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 		$view->renderSortBy = SearchFields_Asset::UPDATED_AT;
 		$view->renderSortAsc = false;
 		$view->renderLimit = 10;
-		$view->renderFilters = false;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;
@@ -1133,6 +1148,14 @@ class Context_Asset extends Extension_DevblocksContext implements IDevblocksCont
 			
 			$tpl->display('devblocks:cerberusweb.assets::asset/peek.tpl');
 		}
+	}
+	
+	function mergeGetKeys() {
+		$keys = [
+			'name',
+		];
+		
+		return $keys;
 	}
 	
 	function importGetKeys() {
