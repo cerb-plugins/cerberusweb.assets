@@ -52,6 +52,7 @@
 	
 	<div style="clear:both;"></div>
 	
+	{include file="devblocks:cerberusweb.core::internal/peek/peek_search_buttons.tpl"}
 </fieldset>
 
 {include file="devblocks:cerberusweb.core::internal/profiles/profile_record_links.tpl" properties_links=$links peek=true page_context=$peek_context page_context_id=$dict->id}
@@ -110,7 +111,7 @@ $(function() {
 		// View profile
 		$popup.find('.cerb-peek-profile').click(function(e) {
 			if(e.shiftKey || e.metaKey) {
-				window.open('{devblocks_url}c=profiles&type=asset&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank');
+				window.open('{devblocks_url}c=profiles&type=asset&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}', '_blank', 'noopener');
 				
 			} else {
 				document.location='{devblocks_url}c=profiles&type=asset&id={$dict->id}-{$dict->_label|devblocks_permalink}{/devblocks_url}';
