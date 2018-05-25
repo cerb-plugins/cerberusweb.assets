@@ -1,0 +1,93 @@
+{
+	"package": {
+		"name": "Profile Defaults Package",
+		"revision": 1,
+		"requires": {
+			"cerb_version": "9.0.0",
+			"plugins": [
+				"cerberusweb.assets"
+			]
+		},
+		"configure": {
+			"prompts": [
+			],
+			"placeholders": [
+			]
+		}
+	},
+	"records": [
+		{
+			"uid": "profile_tab_asset_overview",
+			"_context": "profile_tab",
+			"name": "Overview",
+			"context": "cerberusweb.contexts.asset",
+			"extension_id": "cerb.profile.tab.dashboard",
+			"extension_params": {
+				"layout": "sidebar_left"
+			}
+		},
+		{
+			"uid": "profile_widget_asset_overview_asset",
+			"_context": "profile_widget",
+			"name": "Asset",
+			"profile_tab_id": "{{{uid.profile_tab_asset_overview}}}",
+			"extension_id": "cerb.profile.tab.widget.fields",
+			"extension_params": {
+				"context": "cerberusweb.contexts.asset",
+				"context_id": "{{record_id}}",
+				"properties": [
+					[
+						"updated"
+					]
+				],
+				"links": {
+					"show": "1"
+				}
+			},
+			"pos": 4,
+			"width_units": 4,
+			"zone": "sidebar"
+		},
+		{
+			"uid": "profile_widget_asset_overview_recent-activity",
+			"_context": "profile_widget",
+			"name": "Recent Activity",
+			"profile_tab_id": "{{{uid.profile_tab_asset_overview}}}",
+			"extension_id": "cerb.profile.tab.widget.worklist",
+			"extension_params": {
+				"context": "cerberusweb.contexts.activity_log",
+				"query_required": "target.asset:(id:{{record_id}})",
+				"query": "sort:-created subtotal:activity",
+				"render_limit": "5",
+				"header_color": "#6a87db",
+				"columns": [
+					"c_created"
+				]
+			},
+			"pos": 4,
+			"width_units": 4,
+			"zone": "content"
+		},
+		{
+			"uid": "profile_widget_asset_overview_discussion",
+			"_context": "profile_widget",
+			"name": "Discussion",
+			"profile_tab_id": "{{{uid.profile_tab_asset_overview}}}",
+			"extension_id": "cerb.profile.tab.widget.comments",
+			"extension_params": {
+				"context": "cerberusweb.contexts.asset",
+				"context_id": "{{record_id}}",
+				"height": ""
+			},
+			"pos": 4,
+			"width_units": 4,
+			"zone": "content"
+		}
+	],
+
+	"settings": {
+		"cerberusweb.core": {
+			"profile:tabs:cerberusweb.contexts.asset":"[{{{uid.profile_tab_asset_overview}}}]"
+		}
+	}
+}
