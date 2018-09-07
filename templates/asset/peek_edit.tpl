@@ -1,5 +1,5 @@
 {$peek_context = 'cerberusweb.contexts.asset'}
-<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmAssetPeek">
+<form action="{devblocks_url}{/devblocks_url}" method="post" id="frmAssetPeek" onsubmit="return false;">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="handleSectionAction">
 <input type="hidden" name="section" value="asset">
